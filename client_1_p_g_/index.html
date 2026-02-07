@@ -240,6 +240,7 @@
     </section>
 
     <div class="petals-container" id="petalsContainer"></div>
+    <audio id="galleryAudio" src="AUDIO.mp3" loop></audio>
 
     <script>
         const PASSWORD = "minimouse";
@@ -266,6 +267,7 @@
         const galleryTrack = document.getElementById('galleryTrack');
         const galleryScroller = document.getElementById('galleryScroller');
         const petalsContainer = document.getElementById('petalsContainer');
+        const galleryAudio = document.getElementById('galleryAudio');
 
         let burstTriggered = false;
         let letterAutoOpenTimer, autoScrollFrameId, isGalleryPaused = false;
@@ -364,6 +366,7 @@
                 switchScene(null, sceneMemories);
                 initializeGallery();
                 startPetals();
+                galleryAudio.play().catch(e => console.log('Audio play failed:', e));
             }, 500);
         });
         galleryDismiss.addEventListener('click', () => {
