@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Rose Day 🌹</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Georgia:ital,wght@0,400;0,700;1,400&display=swap');
+
+        :root {
+            --ios-bg: #150508;
+            --ios-card: rgba(50, 20, 30, 0.75);
+            --ios-card-elevated: rgba(70, 30, 40, 0.75);
+            --ios-text-primary: #FFE5EC;
+            --ios-text-secondary: #FFB3C6;
+            --ios-blue: #FF4D79;
+            --ios-pink: #FF2D55;
+            --ios-red: #FF1A40;
+            --rose-gradient-start: #FF2D55;
+            --rose-gradient-end: #FF8FA3;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--ios-bg);
+            color: var(--ios-text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .scene { display: none; width: 100%; height: 100%; position: fixed; top: 0; left: 0; }
+        .scene.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* Scene 1: Rose Burst */
+        #scene-burst { background: radial-gradient(circle at center, #3a0a15 0%, #150508 100%); overflow: hidden; cursor: pointer; }
+        .burst-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .tap-instruction { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10; }
+        .tap-instruction .emoji { font-size: 5rem; display: block; margin-bottom: 24px; animation: bounce 1.8s ease-in-out infinite; filter: drop-shadow(0 0 40px rgba(255, 45, 85, 0.5)); }
+        .tap-instruction .text { font-size: 1.4rem; color: rgba(255,255,255,0.9); font-weight: 600; }
+        .tap-instruction.hidden { opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+
+        .falling-rose { position: absolute; font-size: 2rem; pointer-events: none; z-index: 5; animation: bloomFall 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; filter: drop-shadow(0 0 15px rgba(255, 45, 85, 0.4)); }
+        @keyframes bloomFall { 0% { transform: translateY(-50px) scale(0) rotate(0deg); opacity: 0; } 20% { transform: translateY(15vh) scale(1.5) rotate(45deg); opacity: 1; } 100% { transform: translateY(110vh) scale(1) rotate(720deg); opacity: 0; } }
+
+        .fade-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; opacity: 0; pointer-events: none; z-index: 20; transition: opacity 2s ease; }
+        .fade-overlay.active { opacity: 1; }
+
+        /* Notifications */
+        .ios-notification { position: fixed; top: -250px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 400px; background: rgba(50, 20, 30, 0.9); backdrop-filter: saturate(180%) blur(40px); -webkit-backdrop-filter: saturate(180%) blur(40px); border-radius: 24px; padding: 0; z-index: 1000; box-shadow: 0 20px 60px rgba(255, 45, 85, 0.2); border: 1px solid rgba(255, 45, 85, 0.3); transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .ios-notification.visible { top: 60px; }
+        .notif-header { display: flex; align-items: center; padding: 16px 20px 12px; }
+        .notif-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #FF2D55 0%, #FF6B9D 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-right: 14px; }
+        .notif-meta { flex: 1; display: flex; justify-content: space-between; }
+        .notif-app-name { font-size: 0.875rem; color: var(--ios-text-secondary); font-weight: 600; }
+        .notif-time { font-size: 0.875rem; color: var(--ios-text-secondary); }
+        .notif-content { padding: 0 20px 18px; }
+        .notif-title { font-size: 1.063rem; font-weight: 600; color: #FFFFFF; margin-bottom: 6px; }
+        .notif-body { font-size: 0.938rem; color: rgba(235, 235, 245, 0.6); line-height: 1.5; }
+        .notif-actions { display: flex; border-top: 0.5px solid rgba(84, 84, 88, 0.65); }
+        .notif-btn { flex: 1; padding: 16px; font-size: 1.063rem; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--ios-text-primary); }
+        .notif-btn:first-child { color: var(--ios-text-secondary); border-right: 0.5px solid rgba(84, 84, 88, 0.65); }
+        .notif-btn:last-child { color: var(--ios-blue); }
+
+        /* Scene 2: Envelope */
+        #scene-envelope { background: linear-gradient(180deg, #150508 0%, #2a0f15 100%); }
+        .envelope-wrapper { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; perspective: 1500px; overflow: visible; }
+        .envelope-container { position: relative; width: 340px; height: 240px; transform-style: preserve-3d; }
+        .envelope { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+        .envelope-back { position: absolute; width: 100%; height: 100%; background: linear-gradient(145deg, #8B7355 0%, #6B5344 100%); border-radius: 6px; box-shadow: 0 25px 70px rgba(0,0,0,0.7); }
+        .envelope-front { position: absolute; width: 100%; height: 100%; background: linear-gradient(145deg, #D4C4A8 0%, #C4B498 100%); border-radius: 6px; z-index: 2; }
+        .envelope-front::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 70%; border: 2px solid rgba(139, 115, 85, 0.35); border-radius: 3px; }
+        .envelope-flap { position: absolute; top: 0; left: 0; width: 100%; height: 120px; background: linear-gradient(180deg, #C4B498 0%, #B4A488 100%); clip-path: polygon(0 0, 50% 100%, 100% 0); transform-origin: top center; transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 3; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+        .envelope.opened .envelope-flap { transform: rotateX(180deg); }
+        .wax-seal { position: absolute; top: 75px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: radial-gradient(circle at 30% 30%, #DC143C 0%, #8B0000 100%); border-radius: 50%; z-index: 4; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(139,0,0,0.6); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .wax-seal::before { content: '♥'; font-size: 2.2rem; color: rgba(255,255,255,0.95); }
+        .envelope.opened .wax-seal { opacity: 0; transform: translateX(-50%) scale(0.3); }
+
+        .letter-paper { position: absolute; top: 35px; left: 20px; width: calc(100% - 40px); height: 580px; background: #FDF9F0; border-radius: 3px; z-index: 1; transform: translateY(0); transition: transform 2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-y: auto; scrollbar-width: none; }
+        .letter-paper::-webkit-scrollbar { display: none; }
+        .letter-paper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2000px; background: repeating-linear-gradient(transparent 0px, transparent 31px, rgba(176,196,222,0.35) 31px, rgba(176,196,222,0.35) 32px); pointer-events: none; }
+        .letter-paper::after { content: ''; position: absolute; top: 0; left: 50px; width: 2px; height: 2000px; background: rgba(220,100,100,0.45); pointer-events: none; }
+        .letter-content { position: relative; padding: 60px 25px 80px 25px; opacity: 0; transition: opacity 1.2s ease 2.2s; min-height: 100%; }
+        .envelope.opened .letter-content { opacity: 1; }
+        .letter-date { font-family: 'Georgia', serif; font-size: 0.95rem; color: #5C4A3D; margin-bottom: 30px; text-align: right; font-style: italic; }
+        .letter-greeting { font-family: 'Georgia', serif; font-size: 1.25rem; color: #2C1810; margin-bottom: 28px; font-weight: 600; font-style: italic; }
+        .letter-body { font-family: 'Georgia', serif; font-size: 1.05rem; line-height: 2; color: #1A0F0A; font-style: italic; text-align: justify; }
+        .letter-signature { font-family: 'Georgia', serif; margin-top: 45px; font-size: 1.35rem; color: #C41E3A; font-weight: 700; font-style: italic; text-align: center; }
+        .letter-from { font-family: 'Georgia', serif; margin-top: 35px; font-size: 1.15rem; color: #5C4A3D; font-style: italic; text-align: right; }
+
+        .letter-scroll-indicator { position: fixed; bottom: 25%; left: 50%; transform: translateX(-50%); font-size: 0.9rem; color: #C41E3A; opacity: 0; pointer-events: none; background: rgba(255, 255, 255, 0.8); padding: 5px 15px; border-radius: 20px; font-weight: 600; z-index: 2000; }
+        .envelope.opened .letter-scroll-indicator { animation: flashIndicator 2.5s ease 2s forwards; }
+        @keyframes flashIndicator { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+        .envelope.opened .letter-paper { transform: translateY(-250px); z-index: 50; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-overlay.visible { display: flex; }
+        .modal { background: rgba(28,28,30,0.92); border-radius: 24px; width: 90%; max-width: 320px; text-align: center; overflow: hidden; }
+        .modal.shake { animation: shake 0.5s ease; }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-12px); } 40%,80% { transform: translateX(12px); } }
+        /* Pinkish Modal Styles */
+        .modal { background: rgba(40, 20, 30, 0.95); border: 1px solid rgba(255, 45, 85, 0.3); box-shadow: 0 25px 50px rgba(255, 45, 85, 0.15); }
+        .modal-header h3 { color: #FF6B9D; text-shadow: 0 0 10px rgba(255, 107, 157, 0.4); }
+        .modal input { background: rgba(255, 255, 255, 0.08); color: white; border: 1px solid rgba(255, 107, 157, 0.2); }
+        .modal input:focus { border-color: #FF2D55; outline: none; background: rgba(255, 255, 255, 0.12); }
+        .modal-actions button { color: #FF6B9D; font-weight: 600; }
+        .modal-actions button:last-child { color: #FF2D55; font-weight: 700; }
+        .modal-header { padding: 24px 24px 12px; }
+        .modal-body { padding: 12px 24px 24px; } .modal input { width: 100%; padding: 14px; border-radius: 12px; border: none; text-align: center; font-size: 1.1rem; }
+        .modal input.error { background: rgba(255,69,58,0.25); }
+        .error-text { color: #FF453A; font-size: 0.8rem; opacity: 0; margin-top: 10px; } .error-text.visible { opacity: 1; }
+        .modal-actions { display: flex; border-top: 0.5px solid rgba(84,84,88,0.65); }
+        .modal-actions button { flex: 1; padding: 18px; background: none; border: none; color: #0A84FF; font-size: 1.1rem; cursor: pointer; }
+
+        /* Scene 4: Gallery */
+        #scene-memories { background: linear-gradient(180deg, #150508 0%, #2d101a 100%); flex-direction: column; justify-content: center; overflow: hidden; }
+        .memories-title { position: absolute; top: 40px; width: 100%; text-align: center; z-index: 10; font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #FF2D55 0%, #FF6B9D 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gallery-scroller { width: 100%; height: 420px; display: flex; align-items: center; overflow: hidden; background: rgba(255,255,255,0.03); position: relative; }
+        /* Removed gradients to fix black overlay issue */
+        .gallery-track { display: flex; gap: 20px; padding: 0 20px; will-change: transform; }
+        .memory-frame { position: relative; width: 260px; height: 360px; flex-shrink: 0; border-radius: 16px; overflow: hidden; background: #2c2c2e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); user-select: none; }
+        .memory-frame img, .memory-frame video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .memory-frame video { pointer-events: auto; }
+        .video-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; transition: opacity 0.3s; pointer-events: auto; cursor: pointer; }
+        .video-overlay.hidden { opacity: 0; pointer-events: none; }
+        .video-overlay span { color: white; font-size: 1.5rem; background: rgba(255,45,85,0.9); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        
+        .final-card-frame { background: linear-gradient(135deg, #FF2D55 0%, #FF6B9D 100%); display: flex; align-items: center; justify-content: center; text-align: center; color: white; flex-direction: column; }
+        .final-card-content { padding: 20px; }
+        .final-card-frame h1 { font-size: 1.8rem; margin-bottom: 8px; font-weight: 800; }
+        .final-card-frame .tagline { font-size: 1rem; margin-bottom: 20px; font-style: italic; opacity: 0.9; }
+        .replay-btn { background: white; color: #FF2D55; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        .petals-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; display: none; }
+        .petals-container.active { display: block; }
+        .floating-petal { position: absolute; width: 16px; height: 16px; background: #FF2D55; border-radius: 50% 0 50% 50%; opacity: 0.7; animation: floatDown linear infinite; }
+        @keyframes floatDown { 0% { transform: translateY(-25px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+        @media (max-width: 450px) {
+            .envelope-container { width: 90%; max-width: 340px; height: 220px; }
+            .letter-paper { height: 520px; }
+            .envelope.opened .letter-paper { transform: translateY(-150px); height: 550px; z-index: 50; }
+            .letter-content { padding: 60px 25px 80px 25px; }
+            .memories-title { font-size: 1.5rem; top: 20px; padding: 0 20px; line-height: 1.3; }
+        }
+        @media (min-height: 800px) and (min-width: 451px) {
+            .envelope-container { width: 380px; height: 280px; }
+            .letter-paper { height: 650px; }
+            .envelope.opened .letter-paper { transform: translateY(-350px); z-index: 50; }
+        }
+    </style>
+</head>
+<body>
+    <section id="scene-burst" class="scene active">
+        <div class="burst-container" id="burstContainer"></div>
+        <div class="tap-instruction" id="tapInstruction">
+            <span class="emoji">🌹</span>
+            <span class="text">Tap to Bloom</span>
+        </div>
+        <div class="fade-overlay" id="fadeOverlay"></div>
+    </section>
+
+    <div class="ios-notification" id="letterNotification">
+        <div class="notif-header">
+            <div class="notif-icon">💌</div>
+             <div class="notif-meta"><div class="notif-app-name">Messages</div><div class="notif-time">now</div></div>
+        </div>
+        <div class="notif-content">
+            <div class="notif-title">A Special Letter for You</div>
+            <div class="notif-body">Vidit sent you a heartfelt message. Tap to open.</div>
+        </div>
+        <div class="notif-actions">
+            <button class="notif-btn" id="letterDismiss">Later</button>
+            <button class="notif-btn" id="letterOpen">Open</button>
+        </div>
+    </div>
+
+    <section id="scene-envelope" class="scene">
+        <div class="envelope-wrapper">
+            <div class="envelope-container">
+                <div class="envelope" id="envelope">
+                    <div class="envelope-back"></div>
+                    <div class="letter-paper">
+                        <div class="letter-content">
+                            <p class="letter-date">7th February, 2026</p>
+                            <p class="letter-greeting">My Dearest Guneet,</p>
+                            <p class="letter-body">
+                                This one is not special every day with you feels the best. Guneet me nahi janta ki how. we are just friends and now you become my life every day every night every moment of life is my best memories with you. Bola to bahuto ne hoga ki I luv you u  but the one who mean it is mee ye jo me bol raha hu ye aj ke liye nahi ye hamesha ke kiye hai I love u so much guneet  and happy rose day ❤️🌹
+                            </p>
+                            <p class="letter-signature">HAPPY ROSE DAY Guneet 🥺💌</p>
+                            <p class="letter-from">With all my love,<br>~ Priyant ❤️</p>
+                        </div>
+                        <div class="letter-scroll-indicator">⬇️ Scroll to read</div>
+                    </div>
+                    <div class="envelope-front"></div>
+                    <div class="envelope-flap"></div>
+                    <div class="wax-seal"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal" id="modal">
+                <div class="modal-header"><h3>� Enter Your Nickname</h3></div>
+                <div class="modal-body">
+                    <input type="password" id="passwordInput" placeholder="your nickname">
+                    <p class="error-text" id="errorText">Wrong password. Try again.</p>
+                </div>
+                <div class="modal-actions">
+                    <button id="cancelBtn">Cancel</button>
+                    <button id="unlockBtn">Unlock</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="ios-notification" id="galleryNotification">
+        <div class="notif-header">
+            <div class="notif-icon">📸</div>
+             <div class="notif-meta"><div class="notif-app-name">Photos</div><div class="notif-time">now</div></div>
+        </div>
+        <div class="notif-content">
+            <div class="notif-title">View Your Memories Together 💕</div>
+            <div class="notif-body">Swipe through special moments captured just for you</div>
+        </div>
+        <div class="notif-actions">
+            <button class="notif-btn" id="galleryDismiss">Later</button>
+            <button class="notif-btn" id="galleryOpen">View Gallery</button>
+        </div>
+    </div>
+
+    <section id="scene-memories" class="scene">
+        <h2 class="memories-title">Our Beautiful Memories 🌹</h2>
+        <div class="gallery-scroller" id="galleryScroller">
+            <div class="gallery-track" id="galleryTrack"></div>
+        </div>
+    </section>
+
+    <div class="petals-container" id="petalsContainer"></div>
+
+    <script>
+        const PASSWORD = "minimouse";
+        
+        const sceneBurst = document.getElementById('scene-burst');
+        const sceneEnvelope = document.getElementById('scene-envelope');
+        const sceneMemories = document.getElementById('scene-memories');
+        const burstContainer = document.getElementById('burstContainer');
+        const tapInstruction = document.getElementById('tapInstruction');
+        const fadeOverlay = document.getElementById('fadeOverlay');
+        const letterNotification = document.getElementById('letterNotification');
+        const galleryNotification = document.getElementById('galleryNotification');
+        const envelope = document.getElementById('envelope');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modal = document.getElementById('modal');
+        const passwordInput = document.getElementById('passwordInput');
+        const errorText = document.getElementById('errorText');
+        const unlockBtn = document.getElementById('unlockBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const letterOpen = document.getElementById('letterOpen');
+        const letterDismiss = document.getElementById('letterDismiss');
+        const galleryOpen = document.getElementById('galleryOpen');
+        const galleryDismiss = document.getElementById('galleryDismiss');
+        const galleryTrack = document.getElementById('galleryTrack');
+        const galleryScroller = document.getElementById('galleryScroller');
+        const petalsContainer = document.getElementById('petalsContainer');
+
+        let burstTriggered = false;
+        let letterAutoOpenTimer, autoScrollFrameId, isGalleryPaused = false;
+        
+        sceneBurst.addEventListener('click', () => {
+            if(burstTriggered) return;
+            burstTriggered = true;
+            tapInstruction.classList.add('hidden');
+            for(let i=0; i<100; i++) {
+                setTimeout(() => {
+                    const r = document.createElement('div');
+                    r.className = 'falling-rose';
+                    r.textContent = ['🌹','🌷','🌸','❤️'][Math.floor(Math.random()*4)];
+                    r.style.left = Math.random()*100 + '%';
+                    r.style.animationDuration = (2+Math.random()*3)+'s';
+                    burstContainer.appendChild(r);
+                    setTimeout(() => r.remove(), 5000);
+                }, i*30);
+            }
+            setTimeout(() => { fadeOverlay.classList.add('active'); setTimeout(showLetterNotification, 1800); }, 3500);
+        });
+
+        function showLetterNotification() {
+            letterNotification.classList.add('visible');
+            letterAutoOpenTimer = setTimeout(handleLetterOpen, 7000);
+        }
+        function handleLetterOpen() {
+            clearTimeout(letterAutoOpenTimer);
+            letterNotification.classList.remove('visible');
+            setTimeout(() => {
+                switchScene(sceneBurst, sceneEnvelope);
+                setTimeout(() => { modalOverlay.classList.add('visible'); passwordInput.focus(); }, 600);
+            }, 500);
+        }
+        letterOpen.addEventListener('click', handleLetterOpen);
+        letterDismiss.addEventListener('click', () => {
+            letterNotification.classList.remove('visible');
+            clearTimeout(letterAutoOpenTimer);
+            setTimeout(showLetterNotification, 1200);
+        });
+
+        unlockBtn.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', e => e.key==='Enter' && checkPassword());
+        cancelBtn.addEventListener('click', () => modalOverlay.classList.remove('visible'));
+        
+        function checkPassword() {
+            // Normalize input and password to lowercase and remove spaces for flexible matching
+            const inputVal = passwordInput.value.toLowerCase().replace(/\s/g, '');
+            const passVal = PASSWORD.toLowerCase().replace(/\s/g, '');
+            
+            if(inputVal === passVal) {
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => {
+                    envelope.classList.add('opened');
+                    setTimeout(showContinueButton, 2500);
+                }, 400);
+            } else {
+                modal.classList.add('shake'); passwordInput.classList.add('error'); errorText.classList.add('visible');
+                setTimeout(() => modal.classList.remove('shake'), 600);
+            }
+        }
+
+        const letterPaper = document.querySelector('.letter-paper');
+        const scrollIndicator = document.querySelector('.letter-scroll-indicator');
+        if(letterPaper) {
+            letterPaper.addEventListener('scroll', () => {
+                if(letterPaper.scrollTop > 50) scrollIndicator.style.opacity = '0';
+            });
+        }
+
+        function showContinueButton() {
+            const btn = document.createElement('button');
+            btn.className = 'letter-continue-btn';
+            btn.textContent = 'Open Gallery 📸';
+            btn.style.cssText = `display:block; margin:50px auto 0; padding:16px 40px; font-size:1.1rem; font-weight:700; background:linear-gradient(135deg,#FF2D55 0%,#FF6B9D 100%); color:white; border:none; border-radius:30px; cursor:pointer; box-shadow:0 12px 30px rgba(255,45,85,0.5); animation:fadeInUp 0.6s ease; position:relative;`;
+            
+            btn.addEventListener('click', () => {
+                btn.style.opacity = '0';
+                setTimeout(() => { 
+                    switchScene(sceneEnvelope, null);
+                    // Ensure notification shows
+                    setTimeout(() => {
+                        galleryNotification.classList.add('visible');
+                        console.log('Gallery Notification Shown');
+                    }, 600);
+                }, 300);
+            });
+            document.querySelector('.letter-content').appendChild(btn);
+            // Removed auto-scroll to bottom so user is not disturbed
+        }
+
+        galleryOpen.addEventListener('click', () => {
+            console.log('Opening Gallery...');
+            galleryNotification.classList.remove('visible');
+            setTimeout(() => {
+                switchScene(null, sceneMemories);
+                initializeGallery();
+                startPetals();
+            }, 500);
+        });
+        galleryDismiss.addEventListener('click', () => {
+            galleryNotification.classList.remove('visible');
+            setTimeout(() => galleryNotification.classList.add('visible'), 2000);
+        });
+
+        function initializeGallery() {
+            galleryTrack.innerHTML = '';
+            const items = [
+                {type:'photo', src:'a1.jpeg'},
+                {type:'photo', src:'a2.jpeg'},
+                {type:'photo', src:'a3.jpeg'},
+                {type:'video', src:'v1.mp4'},
+                {type:'video', src:'v2.mp4'},
+                {type:'video', src:'v3.mp4'}
+            ];
+
+            items.sort(() => Math.random() - 0.5);
+
+            items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'memory-frame';
+                if(item.type === 'photo') {
+                    const img = document.createElement('img');
+                    img.src = item.src;
+                    // Debug: If fail, show placeholder
+                    img.onerror = function() { 
+                        this.style.display = 'none';
+                        el.style.display = 'flex';
+                        el.style.alignItems = 'center';
+                        el.style.justifyContent = 'center';
+                        el.style.color = 'white';
+                        el.innerHTML = '<span>Image Failed: ' + item.src + '</span>';
+                    };
+                    el.appendChild(img);
+                } else {
+                    const vid = document.createElement('video');
+                    vid.src = item.src;
+                    vid.muted = true; 
+                    vid.loop = true; 
+                    vid.playsInline = true; 
+                    vid.autoplay = true; // Auto-play videos
+                    vid.preload = 'metadata';
+                    // Auto-play might fail on some browsers if low power mode, but muted usually works
+                    vid.style.pointerEvents = 'none'; // Prevent clicking to pause
+                    
+                    el.appendChild(vid); 
+                    // No overlay needed if autoplay
+                }
+                galleryTrack.appendChild(el);
+            });
+
+            const end = document.createElement('div');
+            end.className = 'memory-frame final-card-frame';
+            end.innerHTML = `<div class="final-card-content"><h1>Happy Rose Day! 🌹</h1><p class="tagline">"Forever blooming in my heart..."</p><button class="replay-btn" onclick="location.reload()">💌 Replay</button></div>`;
+            galleryTrack.appendChild(end);
+
+            startAutoScroll();
+            galleryScroller.style.overflowX = 'auto';
+        }
+
+        function startAutoScroll() {
+            let pos = galleryScroller.scrollLeft;
+            // Should resume if paused
+            
+            function step() {
+                if(!isGalleryPaused) {
+                    pos += 0.8; 
+                    galleryScroller.scrollLeft = pos;
+                } else {
+                    // Update pos to current scroll (in case user dragged)
+                    pos = galleryScroller.scrollLeft;
+                }
+                
+                // Continue loop unless at end
+                if(galleryScroller.scrollLeft + galleryScroller.clientWidth < galleryScroller.scrollWidth - 5) {
+                    autoScrollFrameId = requestAnimationFrame(step);
+                }
+            }
+            
+            cancelAnimationFrame(window.galleryAnim);
+            window.galleryAnim = requestAnimationFrame(step);
+            
+            // Resume on release
+            const pause = () => isGalleryPaused = true;
+            const resume = () => isGalleryPaused = false;
+            
+            galleryScroller.addEventListener('touchstart', pause);
+            galleryScroller.addEventListener('touchend', resume);
+            galleryScroller.addEventListener('mousedown', pause);
+            galleryScroller.addEventListener('mouseup', resume);
+            galleryScroller.addEventListener('mouseleave', resume);
+        }
+
+        function startPetals() {
+            petalsContainer.classList.add('active');
+            setInterval(() => {
+                const p = document.createElement('div');
+                p.className = 'floating-petal';
+                p.style.left = Math.random()*100+'%';
+                p.style.animationDuration = (4+Math.random()*4)+'s';
+                petalsContainer.appendChild(p);
+                setTimeout(()=>p.remove(), 8000);
+            }, 300);
+        }
+
+        function switchScene(from, to) {
+            if(from) from.classList.remove('active');
+            if(to) to.classList.add('active');
+        }
+    </script>
+</body>
+</html>
