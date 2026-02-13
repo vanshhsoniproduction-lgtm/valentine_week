@@ -1,0 +1,314 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Great+Vibes&display=swap');
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --primary-pink: #FF69B4;
+    --light-pink: #FFB6C1;
+    --baby-pink: #FFF0F5;
+    --white: #FFFFFF;
+    --text-color: #8B4513; /* Chocolate brown for contrast */
+    --accent-red: #FF1493;
+    --shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--baby-pink);
+    color: var(--text-color);
+    overflow: hidden; /* Prevent scroll on game scenes */
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Scene Wrapper */
+#app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease-in-out;
+    background: radial-gradient(circle, #FFF0F5 0%, #FFC0CB 100%);
+    padding: 20px;
+    text-align: center;
+}
+
+.scene.active {
+    opacity: 1;
+    pointer-events: all;
+    z-index: 10;
+}
+
+/* Typography */
+h1 {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3.5rem;
+    color: var(--accent-red);
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    animation: float 3s ease-in-out infinite;
+}
+
+p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    line-height: 1.6;
+    color: #555;
+    max-width: 600px;
+}
+
+/* Buttons */
+.btn-group {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping for buttons */
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px; /* Reserve space for dynamic resizing */
+    position: relative; /* For absolute positioning if needed later, but keeping flow is safer for mobile */
+}
+
+button {
+    padding: 15px 40px;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-yes {
+    background: linear-gradient(45deg, #FF69B4, #FF1493);
+    color: white;
+}
+
+.btn-no {
+    background: white;
+    color: var(--primary-pink);
+    border: 2px solid var(--primary-pink);
+}
+
+.btn-yes:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 20, 147, 0.4);
+}
+
+/* Specific Scene Styles */
+
+/* Scene 1: Do you love me? */
+#scene-ask .mascot {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    animation: heartbeat 1.5s infinite;
+}
+
+/* Scene 2: Confirmation */
+.confirm-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 40px;
+    color: var(--accent-red);
+}
+
+/* Scene 3: Password */
+.password-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    width: 90%;
+    max-width: 400px;
+}
+
+input[type="password"] {
+    width: 100%;
+    padding: 15px;
+    margin: 20px 0;
+    border: 2px solid var(--light-pink);
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input[type="password"]:focus {
+    border-color: var(--accent-red);
+}
+
+.error-msg {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.error-msg.visible {
+    opacity: 1;
+}
+
+/* Scene 4: Gallery */
+#scene-gallery {
+    background: linear-gradient(135deg, #FFF0F5 0%, #FFC0CB 100%);
+    overflow-y: auto; /* Enable scrolling for gallery */
+    display: block; /* Override flex centering */
+    padding: 0;
+}
+
+.gallery-header {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+}
+
+.gallery-header h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    animation: bounce 2s infinite;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.gallery-grid {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding-bottom: 100px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Unique Gallery Format: Floating Cards */
+.photo-card {
+    background: white;
+    padding: 15px 15px 40px 15px; /* Polaroid style padding */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    transform-origin: center;
+    border-radius: 4px;
+    transition: transform 0.5s ease;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    position: relative;
+    opacity: 0; /* Animated in via JS */
+    transform: translateY(50px);
+}
+
+.photo-card.visible {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--rotation));
+}
+
+.photo-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 2px;
+}
+
+/* Landscape vs Portrait Handling */
+.photo-card.landscape {
+    max-width: 600px; /* Wider for landscape */
+}
+
+.photo-caption {
+    font-family: 'Great Vibes', cursive;
+    font-size: 1.5rem;
+    color: #555;
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Floating Hearts Background */
+.bg-hearts {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.heart {
+    position: absolute;
+    color: var(--primary-pink);
+    opacity: 0.6;
+    animation: floatUp linear infinite;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.1); }
+    40% { transform: scale(1); }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(110vh) scale(0.5); opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    h1 { font-size: 2.5rem; }
+    .gallery-header h1 { font-size: 2.2rem; }
+    .photo-card { max-width: 90%; }
+    .btn-group { flex-direction: column; }
+    button { width: 100%; max-width: 250px; }
+}

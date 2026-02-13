@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Be My Valentine? 💖</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="app">
+        
+        <!-- Scene 1: The Question -->
+        <div id="scene-ask" class="scene active">
+            <h1 class="mascot">🥺👉👈</h1>
+            <h1>Do you love me?</h1>
+            <div class="test"></div>
+            <div class="btn-group">
+                <button id="btn-yes" class="btn-yes">Yes! 💖</button>
+                <button id="btn-no" class="btn-no">No 😢</button>
+            </div>
+        </div>
+
+        <!-- Scene 2: Confirmation Sequence -->
+        <div id="scene-confirm" class="scene">
+            <h1 id="confirm-text">Do you really love me? 🌹</h1>
+            <button id="btn-confirm-yes" class="btn-yes">Yes, I do! ❤️</button>
+        </div>
+
+        <!-- Scene 3: Password -->
+        <div id="scene-password" class="scene">
+            <h1>Enter the Magic Words... 🗝️</h1>
+            <div class="password-container">
+                <input type="password" id="password-input" placeholder="Secret Password...">
+                <button id="btn-password" class="btn-yes">Unlock My Heart 🔓</button>
+                <p id="password-error" class="error-msg">Wrong password 💔</p>
+            </div>
+        </div>
+
+        <!-- Scene 4: The Gallery -->
+        <div id="scene-gallery" class="scene">
+            <div class="bg-hearts"></div>
+            <div class="gallery-header">
+                <h1>Happy Valentine's Day! 💖</h1>
+                <p>Do you want to be my Valentine?</p>
+                <div class="scroll-indicator">⬇️ Scroll Down</div>
+            </div>
+            
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Images will be injected here by JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Background Audio -->
+    <audio id="bg-music" src="AUDIO.mp3" loop></audio>
+
+    <script src="script.js"></script>
+
+    <script>
+        // Fallback for missing AUDIO.mp3
+        const audio = document.getElementById('bg-music');
+        audio.addEventListener('error', function() {
+            console.log("Audio file 'AUDIO.mp3' not found. Please add it to the folder.");
+        });
+    </script>
+</body>
+</html>
