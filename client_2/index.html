@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Valentine's Day 💖</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Georgia:ital,wght@0,400;0,700;1,400&display=swap');
+
+        :root {
+            /* Light Baby Pink Theme */
+            --ios-bg: #FFF0F5; /* LavenderBlush - Light background */
+            --ios-card: rgba(255, 182, 193, 0.4); 
+            --ios-card-elevated: rgba(255, 182, 193, 0.6);
+            --ios-text-primary: #8B4513; /* SaddleBrown/Dark for contrast */
+            --ios-text-secondary: #A0522D; /* Sienna */
+            --ios-btn-bg: #FF69B4; /* HotPink */
+            --ios-btn-text: #FFFFFF;
+            --heart-red: #FF1493; /* DeepPink */
+            --gradient-start: #FFC0CB; /* Pink */
+            --gradient-end: #FFB6C1; /* LightPink */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--ios-bg);
+            color: var(--ios-text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .scene { display: none; width: 100%; height: 100%; position: fixed; top: 0; left: 0; }
+        .scene.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* Scene 1: Heart Burst */
+        #scene-burst { background: radial-gradient(circle at center, #FFF0F5 0%, #FFC0CB 100%); overflow: hidden; cursor: pointer; }
+        .burst-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .tap-instruction { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10; }
+        .tap-instruction .emoji { font-size: 5rem; display: block; margin-bottom: 24px; animation: pulse 1.5s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(255, 105, 180, 0.4)); }
+        .tap-instruction .text { font-size: 1.4rem; color: #D87093; font-weight: 600; }
+        .tap-instruction.hidden { opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .falling-heart { position: absolute; font-size: 2rem; pointer-events: none; z-index: 5; animation: heartFall 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.3)); color: #FF69B4; }
+        @keyframes heartFall { 0% { transform: translateY(-50px) scale(0) rotate(0deg); opacity: 0; } 20% { transform: translateY(15vh) scale(1.5) rotate(15deg); opacity: 1; } 100% { transform: translateY(110vh) scale(1) rotate(360deg); opacity: 0; } }
+
+        .fade-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #FFF; opacity: 0; pointer-events: none; z-index: 20; transition: opacity 2s ease; }
+        .fade-overlay.active { opacity: 0.8; } /* Lighter overlay */
+
+        /* Notifications */
+        .ios-notification { position: fixed; top: -250px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 400px; background: rgba(255, 255, 255, 0.9); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-radius: 24px; padding: 0; z-index: 1000; box-shadow: 0 10px 40px rgba(255, 182, 193, 0.4); border: 1px solid rgba(255, 182, 193, 0.5); transition: top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .ios-notification.visible { top: 60px; }
+        .notif-header { display: flex; align-items: center; padding: 16px 20px 12px; }
+        .notif-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #FFB7C5 0%, #FF69B4 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-right: 14px; }
+        .notif-meta { flex: 1; display: flex; justify-content: space-between; }
+        .notif-app-name { font-size: 0.875rem; color: #888; font-weight: 600; }
+        .notif-time { font-size: 0.875rem; color: #888; }
+        .notif-content { padding: 0 20px 18px; }
+        .notif-title { font-size: 1.063rem; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .notif-body { font-size: 0.938rem; color: #555; line-height: 1.5; }
+        .notif-actions { display: flex; border-top: 0.5px solid rgba(0, 0, 0, 0.1); }
+        .notif-btn { flex: 1; padding: 16px; font-size: 1.063rem; font-weight: 600; background: none; border: none; cursor: pointer; color: #333; }
+        .notif-btn:first-child { color: #888; border-right: 0.5px solid rgba(0, 0, 0, 0.1); }
+        .notif-btn:last-child { color: #FF69B4; }
+
+        /* Scene 2: Envelope */
+        #scene-envelope { background: linear-gradient(180deg, #FFF0F5 0%, #FFE4E1 100%); }
+        .envelope-wrapper { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; perspective: 1500px; overflow: visible; }
+        .envelope-container { position: relative; width: 340px; height: 240px; transform-style: preserve-3d; }
+        .envelope { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+        
+        /* Updated Envelope Colors for Light Baby Pink theme */
+        .envelope-back { position: absolute; width: 100%; height: 100%; background: linear-gradient(145deg, #FFB7C5 0%, #FFC0CB 100%); border-radius: 6px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+        .envelope-front { position: absolute; width: 100%; height: 100%; background: linear-gradient(145deg, #FFC0CB 0%, #FFB6C1 100%); border-radius: 6px; z-index: 2; }
+        .envelope-front::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 70%; border: 2px solid rgba(255, 255, 255, 0.6); border-radius: 3px; }
+        .envelope-flap { position: absolute; top: 0; left: 0; width: 100%; height: 120px; background: linear-gradient(180deg, #LightPink 0%, #FFB6C1 100%); clip-path: polygon(0 0, 50% 100%, 100% 0); transform-origin: top center; transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 3; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .envelope.opened .envelope-flap { transform: rotateX(180deg); }
+        .wax-seal { position: absolute; top: 75px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: radial-gradient(circle at 30% 30%, #FF1493 0%, #C71585 100%); border-radius: 50%; z-index: 4; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(199, 21, 133, 0.3); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .wax-seal::before { content: '♥'; font-size: 2.2rem; color: rgba(255,255,255,0.95); }
+        .envelope.opened .wax-seal { opacity: 0; transform: translateX(-50%) scale(0.3); }
+
+        .letter-paper { position: absolute; top: 35px; left: 20px; width: calc(100% - 40px); height: 580px; background: #FFF; border-radius: 3px; z-index: 1; transform: translateY(0); transition: transform 2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow-y: auto; scrollbar-width: none; }
+        .letter-paper::-webkit-scrollbar { display: none; }
+        .letter-paper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2000px; background: repeating-linear-gradient(transparent 0px, transparent 31px, rgba(200, 200, 200, 0.1) 31px, rgba(200, 200, 200, 0.1) 32px); pointer-events: none; }
+        .letter-paper::after { content: ''; position: absolute; top: 0; left: 50px; width: 2px; height: 2000px; background: rgba(255, 182, 193, 0.3); pointer-events: none; }
+        .letter-content { position: relative; padding: 60px 25px 80px 25px; opacity: 0; transition: opacity 1.2s ease 2.2s; min-height: 100%; }
+        .envelope.opened .letter-content { opacity: 1; }
+        .letter-date { font-family: 'Georgia', serif; font-size: 0.95rem; color: #8B4513; margin-bottom: 30px; text-align: right; font-style: italic; }
+        .letter-greeting { font-family: 'Georgia', serif; font-size: 1.25rem; color: #C71585; margin-bottom: 28px; font-weight: 600; font-style: italic; }
+        .letter-body { font-family: 'Georgia', serif; font-size: 1.05rem; line-height: 2; color: #333; font-style: italic; text-align: justify; }
+        .letter-signature { font-family: 'Georgia', serif; margin-top: 45px; font-size: 1.35rem; color: #FF1493; font-weight: 700; font-style: italic; text-align: center; }
+        .letter-from { font-family: 'Georgia', serif; margin-top: 35px; font-size: 1.15rem; color: #8B4513; font-style: italic; text-align: right; }
+
+        .letter-scroll-indicator { position: fixed; bottom: 25%; left: 50%; transform: translateX(-50%); font-size: 0.9rem; color: #FF1493; opacity: 0; pointer-events: none; background: rgba(255, 255, 255, 0.9); padding: 5px 15px; border-radius: 20px; font-weight: 600; z-index: 2000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .envelope.opened .letter-scroll-indicator { animation: flashIndicator 2.5s ease 2s forwards; }
+        @keyframes flashIndicator { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+        .envelope.opened .letter-paper { transform: translateY(-250px); z-index: 50; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-overlay.visible { display: flex; }
+        .modal { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 182, 193, 0.5); box-shadow: 0 25px 50px rgba(0,0,0,0.1); border-radius: 24px; width: 90%; max-width: 320px; text-align: center; overflow: hidden; }
+        .modal.shake { animation: shake 0.5s ease; }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-12px); } 40%,80% { transform: translateX(12px); } }
+        
+        .modal-header h3 { color: #FF1493; text-shadow: none; }
+        .modal input { background: rgba(0, 0, 0, 0.05); color: #333; border: 1px solid rgba(0, 0, 0, 0.1); }
+        .modal input:focus { border-color: #FF69B4; outline: none; background: rgba(255, 255, 255, 1); }
+        .modal-actions button { color: #555; font-weight: 600; }
+        .modal-actions button:last-child { color: #FF1493; font-weight: 700; }
+        .modal-header { padding: 24px 24px 12px; }
+        .modal-body { padding: 12px 24px 24px; } .modal input { width: 100%; padding: 14px; border-radius: 12px; border: none; text-align: center; font-size: 1.1rem; }
+        .modal input.error { background: rgba(255,69,58,0.1); border-color: #FF453A; }
+        .error-text { color: #FF453A; font-size: 0.8rem; opacity: 0; margin-top: 10px; } .error-text.visible { opacity: 1; }
+        .modal-actions { display: flex; border-top: 0.5px solid rgba(0, 0, 0, 0.1); }
+        .modal-actions button { flex: 1; padding: 18px; background: none; border: none; color: #555; font-size: 1.1rem; cursor: pointer; }
+
+        /* Scene 4: Gallery */
+        #scene-memories { background: linear-gradient(180deg, #FFF0F5 0%, #FFC0CB 100%); flex-direction: column; justify-content: center; overflow: hidden; }
+        .memories-title { position: absolute; top: 40px; width: 100%; text-align: center; z-index: 10; font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gallery-scroller { width: 100%; height: 420px; display: flex; align-items: center; overflow: hidden; background: rgba(255,255,255,0.3); position: relative; }
+        
+        .gallery-track { display: flex; gap: 20px; padding: 0 20px; will-change: transform; }
+        .memory-frame { position: relative; width: 260px; height: 360px; flex-shrink: 0; border-radius: 16px; overflow: hidden; background: #FFF; box-shadow: 0 10px 30px rgba(0,0,0,0.1); user-select: none; border: 4px solid #FFF; }
+        .memory-frame img, .memory-frame video { width: 100%; height: 100%; object-fit: cover; background: #EEE; pointer-events: none; }
+        .memory-frame video { pointer-events: auto; }
+        
+        .final-card-frame { background: linear-gradient(135deg, #FFC0CB 0%, #FF69B4 100%); display: flex; align-items: center; justify-content: center; text-align: center; color: #FFF; flex-direction: column; }
+        .final-card-content { padding: 20px; }
+        .final-card-frame h1 { font-size: 1.8rem; margin-bottom: 8px; font-weight: 800; color: #FFF; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .final-card-frame .tagline { font-size: 1rem; margin-bottom: 20px; font-style: italic; opacity: 0.95; color: #FFF; }
+        .replay-btn { background: white; color: #FF1493; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        .petals-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; display: none; }
+        .petals-container.active { display: block; }
+        .floating-heart { position: absolute; font-size: 20px; opacity: 0.7; animation: floatDown linear infinite; color: #FF69B4; }
+        @keyframes floatDown { 0% { transform: translateY(-25px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+
+        @media (max-width: 450px) {
+            .envelope-container { width: 90%; max-width: 340px; height: 220px; }
+            .letter-paper { height: 520px; }
+            .envelope.opened .letter-paper { transform: translateY(-150px); height: 550px; z-index: 50; }
+            .letter-content { padding: 60px 25px 80px 25px; }
+            .memories-title { font-size: 1.5rem; top: 20px; padding: 0 20px; line-height: 1.3; }
+        }
+    </style>
+</head>
+<body>
+    <section id="scene-burst" class="scene active">
+        <div class="burst-container" id="burstContainer"></div>
+        <div class="tap-instruction" id="tapInstruction">
+            <span class="emoji">💖</span>
+            <span class="text">Tap to Love</span>
+        </div>
+        <div class="fade-overlay" id="fadeOverlay"></div>
+    </section>
+
+    <div class="ios-notification" id="letterNotification">
+        <div class="notif-header">
+            <div class="notif-icon">💌</div>
+             <div class="notif-meta"><div class="notif-app-name">Messages</div><div class="notif-time">now</div></div>
+        </div>
+        <div class="notif-content">
+            <div class="notif-title">A Special Letter for You</div>
+            <div class="notif-body">You have a heartfelt message. Tap to open.</div>
+        </div>
+        <div class="notif-actions">
+            <button class="notif-btn" id="letterDismiss">Later</button>
+            <button class="notif-btn" id="letterOpen">Open</button>
+        </div>
+    </div>
+
+    <section id="scene-envelope" class="scene">
+        <div class="envelope-wrapper">
+            <div class="envelope-container">
+                <div class="envelope" id="envelope">
+                    <div class="envelope-back"></div>
+                    <div class="letter-paper">
+                        <div class="letter-content">
+                            <p class="letter-date">14th February, 2026</p>
+                            <p class="letter-greeting">My Dearest,</p>
+                            <p class="letter-body">
+                                Every day with you feels like a dream come true. You have brought so much love and joy into my life. 
+                                I don't need a special day to tell you how much you mean to me, but today, on Valentine's Day, I want to remind you that you are my everything.
+                                Every moment of my life is my best memory because of you. I love you so much! ❤️
+                            </p>
+                            <p class="letter-signature">HAPPY VALENTINE'S DAY 💖💌</p>
+                            <p class="letter-from">With all my love,<br>~ Suryani ❤️</p>
+                        </div>
+                        <div class="letter-scroll-indicator">⬇️ Scroll to read</div>
+                    </div>
+                    <div class="envelope-front"></div>
+                    <div class="envelope-flap"></div>
+                    <div class="wax-seal"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal" id="modal">
+                <div class="modal-header"><h3>🔒 Secret Password</h3></div>
+                <div class="modal-body">
+                    <input type="password" id="passwordInput" placeholder="Enter secret password">
+                    <p class="error-text" id="errorText">Wrong password. Try again.</p>
+                </div>
+                <div class="modal-actions">
+                    <button id="cancelBtn">Cancel</button>
+                    <button id="unlockBtn">Unlock</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="ios-notification" id="galleryNotification">
+        <div class="notif-header">
+            <div class="notif-icon">📸</div>
+             <div class="notif-meta"><div class="notif-app-name">Photos</div><div class="notif-time">now</div></div>
+        </div>
+        <div class="notif-content">
+            <div class="notif-title">Our Precious Memories 💕</div>
+            <div class="notif-body">Swipe through our special moments together</div>
+        </div>
+        <div class="notif-actions">
+            <button class="notif-btn" id="galleryDismiss">Later</button>
+            <button class="notif-btn" id="galleryOpen">View Gallery</button>
+        </div>
+    </div>
+
+    <section id="scene-memories" class="scene">
+        <h2 class="memories-title">Our Sweetest Moments 💖</h2>
+        <div class="gallery-scroller" id="galleryScroller">
+            <div class="gallery-track" id="galleryTrack"></div>
+        </div>
+    </section>
+
+    <div class="petals-container" id="petalsContainer"></div>
+    <audio id="galleryAudio" src="AUDIO.mp3" loop></audio>
+
+    <script>
+        const PASSWORD = "bondi ka laddu";
+        
+        const sceneBurst = document.getElementById('scene-burst');
+        const sceneEnvelope = document.getElementById('scene-envelope');
+        const sceneMemories = document.getElementById('scene-memories');
+        const burstContainer = document.getElementById('burstContainer');
+        const tapInstruction = document.getElementById('tapInstruction');
+        const fadeOverlay = document.getElementById('fadeOverlay');
+        const letterNotification = document.getElementById('letterNotification');
+        const galleryNotification = document.getElementById('galleryNotification');
+        const envelope = document.getElementById('envelope');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modal = document.getElementById('modal');
+        const passwordInput = document.getElementById('passwordInput');
+        const errorText = document.getElementById('errorText');
+        const unlockBtn = document.getElementById('unlockBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const letterOpen = document.getElementById('letterOpen');
+        const letterDismiss = document.getElementById('letterDismiss');
+        const galleryOpen = document.getElementById('galleryOpen');
+        const galleryDismiss = document.getElementById('galleryDismiss');
+        const galleryTrack = document.getElementById('galleryTrack');
+        const galleryScroller = document.getElementById('galleryScroller');
+        const petalsContainer = document.getElementById('petalsContainer');
+        const galleryAudio = document.getElementById('galleryAudio');
+
+        let burstTriggered = false;
+        let letterAutoOpenTimer, autoScrollFrameId, isGalleryPaused = false;
+        
+        sceneBurst.addEventListener('click', () => {
+            if(burstTriggered) return;
+            burstTriggered = true;
+            tapInstruction.classList.add('hidden');
+            for(let i=0; i<60; i++) {
+                setTimeout(() => {
+                    const r = document.createElement('div');
+                    r.className = 'falling-heart';
+                    r.textContent = ['💖','💕','💗','❤️'][Math.floor(Math.random()*4)];
+                    r.style.left = Math.random()*100 + '%';
+                    r.style.animationDuration = (2+Math.random()*3)+'s';
+                    burstContainer.appendChild(r);
+                    setTimeout(() => r.remove(), 5000);
+                }, i*40);
+            }
+            setTimeout(() => { fadeOverlay.classList.add('active'); setTimeout(showLetterNotification, 1800); }, 3500);
+        });
+
+        function showLetterNotification() {
+            letterNotification.classList.add('visible');
+            letterAutoOpenTimer = setTimeout(handleLetterOpen, 7000);
+        }
+        function handleLetterOpen() {
+            clearTimeout(letterAutoOpenTimer);
+            letterNotification.classList.remove('visible');
+            setTimeout(() => {
+                switchScene(sceneBurst, sceneEnvelope);
+                setTimeout(() => { modalOverlay.classList.add('visible'); passwordInput.focus(); }, 600);
+            }, 500);
+        }
+        letterOpen.addEventListener('click', handleLetterOpen);
+        letterDismiss.addEventListener('click', () => {
+            letterNotification.classList.remove('visible');
+            clearTimeout(letterAutoOpenTimer);
+            setTimeout(showLetterNotification, 1200);
+        });
+
+        unlockBtn.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', e => e.key==='Enter' && checkPassword());
+        cancelBtn.addEventListener('click', () => modalOverlay.classList.remove('visible'));
+        
+        function checkPassword() {
+            const inputVal = passwordInput.value.toLowerCase().replace(/\s/g, '');
+            const passVal = PASSWORD.toLowerCase().replace(/\s/g, '');
+            
+            if(inputVal === passVal) {
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => {
+                    envelope.classList.add('opened');
+                    setTimeout(showContinueButton, 2500);
+                }, 400);
+            } else {
+                modal.classList.add('shake'); passwordInput.classList.add('error'); errorText.classList.add('visible');
+                setTimeout(() => modal.classList.remove('shake'), 600);
+            }
+        }
+
+        const letterPaper = document.querySelector('.letter-paper');
+        const scrollIndicator = document.querySelector('.letter-scroll-indicator');
+        if(letterPaper) {
+            letterPaper.addEventListener('scroll', () => {
+                if(letterPaper.scrollTop > 50) scrollIndicator.style.opacity = '0';
+            });
+        }
+
+        function showContinueButton() {
+            const btn = document.createElement('button');
+            btn.className = 'letter-continue-btn';
+            btn.textContent = 'Open Gallery 📸';
+            btn.style.cssText = `display:block; margin:50px auto 0; padding:16px 40px; font-size:1.1rem; font-weight:700; background:linear-gradient(135deg,#FF69B4 0%,#FFB6C1 100%); color:#FFF; border:none; border-radius:30px; cursor:pointer; box-shadow:0 12px 30px rgba(255,105,180,0.5); animation:fadeInUp 0.6s ease; position:relative;`;
+            
+            btn.addEventListener('click', () => {
+                btn.style.opacity = '0';
+                setTimeout(() => { 
+                    switchScene(sceneEnvelope, null);
+                    setTimeout(() => {
+                        galleryNotification.classList.add('visible');
+                    }, 600);
+                }, 300);
+            });
+            document.querySelector('.letter-content').appendChild(btn);
+        }
+
+        galleryOpen.addEventListener('click', () => {
+            galleryNotification.classList.remove('visible');
+            setTimeout(() => {
+                switchScene(null, sceneMemories);
+                initializeGallery();
+                startHearts();
+                galleryAudio.play().catch(e => console.log('Audio play failed:', e));
+            }, 500);
+        });
+        galleryDismiss.addEventListener('click', () => {
+            galleryNotification.classList.remove('visible');
+            setTimeout(() => galleryNotification.classList.add('visible'), 2000);
+        });
+
+        function initializeGallery() {
+            galleryTrack.innerHTML = '';
+            // Only 7 photos as requested - a1 to a7
+            const items = [
+                {type:'photo', src:'a1.jpeg'},
+                {type:'photo', src:'a3.jpeg'},
+                {type:'photo', src:'a4.jpeg'},
+                {type:'photo', src:'a5.jpeg'},
+                {type:'photo', src:'a6.jpeg'},
+                {type:'photo', src:'a7.jpeg'}
+            ];
+
+            // items.sort(() => Math.random() - 0.5); // Random shuffle for surprise
+
+            items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'memory-frame';
+                const img = document.createElement('img');
+                img.src = item.src;
+                img.alt = "Memory";
+                img.onerror = function() { 
+                    this.style.display = 'none';
+                    el.style.display = 'flex';
+                    el.style.alignItems = 'center';
+                    el.style.justifyContent = 'center';
+                    el.style.color = '#FFD1DC'; // PalePink
+                    el.style.fontSize = '3rem';
+                    el.innerHTML = '❤️';
+                };
+                el.appendChild(img);
+                galleryTrack.appendChild(el);
+            });
+
+            const end = document.createElement('div');
+            end.className = 'memory-frame final-card-frame';
+            end.innerHTML = `<div class="final-card-content"><h1>Happy Valentine's Day! 💖</h1><p class="tagline">"Loving you always..."</p><button class="replay-btn" onclick="location.reload()">💌 Replay</button></div>`;
+            galleryTrack.appendChild(end);
+
+            startAutoScroll();
+            galleryScroller.style.overflowX = 'auto';
+        }
+
+        function startAutoScroll() {
+            let pos = galleryScroller.scrollLeft;
+            
+            function step() {
+                if(!isGalleryPaused) {
+                    pos += 0.8; 
+                    galleryScroller.scrollLeft = pos;
+                } else {
+                    pos = galleryScroller.scrollLeft;
+                }
+                
+                if(galleryScroller.scrollLeft + galleryScroller.clientWidth < galleryScroller.scrollWidth - 5) {
+                    autoScrollFrameId = requestAnimationFrame(step);
+                }
+            }
+            
+            cancelAnimationFrame(window.galleryAnim);
+            window.galleryAnim = requestAnimationFrame(step);
+            
+            const pause = () => isGalleryPaused = true;
+            const resume = () => isGalleryPaused = false;
+            
+            galleryScroller.addEventListener('touchstart', pause);
+            galleryScroller.addEventListener('touchend', resume);
+            galleryScroller.addEventListener('mousedown', pause);
+            galleryScroller.addEventListener('mouseup', resume);
+            galleryScroller.addEventListener('mouseleave', resume);
+        }
+
+        function startHearts() {
+            petalsContainer.classList.add('active');
+            setInterval(() => {
+                const p = document.createElement('div');
+                p.className = 'floating-heart';
+                p.textContent = ['💖','💕','💗','❤️'][Math.floor(Math.random()*4)];
+                p.style.left = Math.random()*100+'%';
+                p.style.animationDuration = (4+Math.random()*4)+'s';
+                petalsContainer.appendChild(p);
+                setTimeout(()=>p.remove(), 8000);
+            }, 300);
+        }
+
+        function switchScene(from, to) {
+            if(from) from.classList.remove('active');
+            if(to) to.classList.add('active');
+        }
+    </script>
+</body>
+</html>
