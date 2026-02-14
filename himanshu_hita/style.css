@@ -1,0 +1,259 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Great+Vibes&display=swap');
+
+/* Reset and Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --bg-color: #FFF0F5; /* Lavender Blush (Baby Pink) */
+    --primary-pink: #FF69B4; /* Hot Pink */
+    --light-pink: #FFB6C1; /* Light Pink */
+    --accent-pink: #FF1493; /* Deep Pink */
+    --white: #FFFFFF;
+    --text-color: #8B4513; /* Chocolate for contrast, softer than black */
+    --shadow: 0 4px 15px rgba(255, 105, 180, 0.2);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Prevent scroll on main view */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Cute background pattern */
+    background-image: radial-gradient(#FFC0CB 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* App Container */
+#app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Scenes */
+.scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease-in-out;
+    padding: 20px;
+    z-index: 1;
+}
+
+.scene.active {
+    opacity: 1;
+    pointer-events: all;
+    z-index: 10;
+}
+
+/* Typography */
+h1 {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3rem; 
+    color: var(--accent-pink);
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+    animation: float 3s ease-in-out infinite;
+}
+
+p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 30px;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+/* Button Styles */
+.btn-group {
+    position: relative;
+    width: 100%;
+    height: 200px; /* Space for buttons to move */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 100; /* Ensure clickable */
+}
+
+.btn-yes {
+    background: var(--primary-pink);
+    color: var(--white);
+    border: 2px solid var(--primary-pink);
+}
+
+.btn-yes:hover {
+    background: var(--accent-pink);
+    transform: scale(1.05);
+}
+
+.btn-no {
+    background: var(--white);
+    color: var(--primary-pink);
+    border: 2px solid var(--light-pink);
+    position: relative; /* To allow absolute movement if needed, but flex handles initial */
+}
+
+/* Password Input */
+.password-box {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    width: 90%;
+    max-width: 350px;
+}
+
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border: 2px solid var(--light-pink);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1rem;
+    outline: none;
+}
+
+input[type="password"]:focus {
+    border-color: var(--accent-pink);
+}
+
+.error-msg {
+    color: crimson;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    height: 20px;
+}
+
+.error-msg.visible {
+    opacity: 1;
+}
+
+/* Letter Section */
+#scene-letter {
+    overflow-y: auto; /* Allow scrolling for long letter */
+    display: block; /* Override flex center */
+    padding: 0;
+}
+
+.letter-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background: linear-gradient(180deg, var(--bg-color) 0%, #FFFFFF 100%);
+}
+
+.letter-card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    transform: translateY(20px);
+    opacity: 0;
+    animation: slideUp 1s forwards 0.5s;
+}
+
+.letter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: repeating-linear-gradient(
+        45deg,
+        var(--light-pink),
+        var(--light-pink) 10px,
+        var(--white) 10px,
+        var(--white) 20px
+    );
+    border-radius: 10px 10px 0 0;
+}
+
+.letter-content {
+    font-family: 'Great Vibes', cursive; /* Handwritten feel */
+    font-size: 1.8rem;
+    color: #555;
+    line-height: 1.8;
+    text-align: left; /* Look like a real letter */
+}
+
+/* Footer */
+footer {
+    margin-top: 50px;
+    font-size: 0.8rem;
+    color: #aaa;
+    text-align: center;
+}
+
+footer a {
+    color: var(--primary-pink);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Zoom Logic */
+/* The user asked for "chota hona choyea ki zoom krne pr acche se dikhe" 
+   which implies vector/rem usage so it scales cleanly. */
+
+@media (max-width: 600px) {
+    h1 { font-size: 2.2rem; }
+    .letter-content { font-size: 1.4rem; }
+    .btn-group { flex-direction: column; height: auto; gap: 15px; }
+    button { width: 100%; max-width: 250px; }
+}
